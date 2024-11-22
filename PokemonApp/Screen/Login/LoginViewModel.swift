@@ -8,28 +8,28 @@
 import Foundation
 import Networking
 
-final class LoginViewModel{
+final class LoginViewModel {
     let networkingManager: NetworkingManager
     
     init(networkingManager: NetworkingManager = NetworkingManager.shared) {
         self.networkingManager = networkingManager
     }
 
-    func login(with user: String, password: String) async {
+    func login(with user: String, password: String) async throws{
         let loginRequest = LoginRequest(user: user, password: password)
-        Task {
-            let loginResult: Result<LoginResponse, Error> = await networkingManager.login(with: loginRequest)
-            // Manejar el resultado del login
+            let loginResult: Result<LoginResponse, Error> = try await networkingManager.login(with: loginRequest)
             switch loginResult {
-            case .success(let login):
-                print(login)
+            case .success(let response):
+                if response.result != "Success" {
+                    throw LoginError.invalidCredentials
+                }
             case .failure(let error):
-                // Manejar el error
-                print(error)
+                throw error
             }
-        }
     }
     
-    
-    
+}
+//Definir error por inicio de sesión
+enum LoginError: Error {
+    case invalidCredentials
 }

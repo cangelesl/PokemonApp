@@ -9,9 +9,10 @@ import Foundation
 
 // MARK: - LoginResponse
 public struct LoginResponse: Decodable {
-   public  let user, password, name, lastName: String
-    public let correo, result: String
-
+    public  let user, password, name, lastName: String?
+    public let correo: String?
+    public let result: String
+    
     enum CodingKeys: String, CodingKey {
         case user, password, name
         case lastName = "last_name"

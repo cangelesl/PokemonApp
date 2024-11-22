@@ -106,6 +106,16 @@ class LoginViewController: UIViewController {
      */
   
     private let loginModel: LoginViewModel
+
+     // Inicializador
+     init(loginModel: LoginViewModel) {
+         self.loginModel = loginModel
+         super.init(nibName: nil, bundle: nil)
+     }
+
+     required init?(coder: NSCoder) {
+         fatalError("init(coder:) has not been implemented")
+     }
     
     @objc func buttonTapped(sender: UIButton) {
         let username = usernameTextField.text ?? ""
@@ -113,17 +123,26 @@ class LoginViewController: UIViewController {
         Task {
               do {
                   try await loginModel.login(with: username, password: password)
-                  // Navegar a la siguiente pantalla en caso de éxito
+                  //Si el resultado anterior es error salta al catch
                   let homeViewController = HomeViewController(viewModel: HomeViewModel())
-                  navigationController?.pushViewController(homeViewController,
-       animated: true)
+                  navigationController?.pushViewController(homeViewController, animated: true)
+              } catch let error as LoginError {
+                  // Manejar el error de bad credentials
+                  showAlert(message: "Usuario o contraseña incorrecta")
               } catch {
-                  // Manejar el error
-                  print("Error de inicio de sesión: \(error)")
+                  // Manejo de otros errores general no mapeados
+                  showAlert(message: "Error al realizar el inicio de sesión. Intenta nuevamente.")
               }
           }
     }
-
+    
+    private func showAlert(message: String) {
+        let alertController = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
+        let action = UIAlertAction(title: "OK", style: .default)
+        alertController.addAction(action)
+        present(alertController, animated: true, completion: nil)
+    }
+    
     
 }
 

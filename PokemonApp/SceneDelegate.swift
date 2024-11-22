@@ -22,7 +22,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window.rootViewController = UINavigationController(rootViewController: SplashViewController())
         // Simula carga e invoca al ViewController
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
-            self.window?.rootViewController = UINavigationController(rootViewController: LoginViewController())
+            self.window?.rootViewController = UINavigationController(rootViewController: LoginViewController(loginModel: LoginViewModel()))
             self.window?.makeKeyAndVisible()
         }
         window.makeKeyAndVisible()

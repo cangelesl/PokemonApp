@@ -38,28 +38,22 @@ public class NetworkingManager: NetworkingManagerRepresentable {
         }
     }
     
-    public func login(with request: LoginRequest) async -> Result<LoginResponse, Error> {
-        do {
-            let url = URL(string: "http://localhost:3000/login")!
-            var urlRequest = URLRequest(url: url)
-            urlRequest.httpMethod = "POST"
-            urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
-            let encoder = JSONEncoder()
-            let jsonData = try encoder.encode(request)
-            urlRequest.httpBody = jsonData
-            let response = try await AF.request(urlRequest)
-                .validate()
-                .serializingDecodable(LoginResponse.self)
-                .response
-            switch response.result {
-            case .success(let loginResponse):
-                return .success(loginResponse)
-            case .failure(let error):
-                return .failure(error)
-            }
-        } catch {
+    public func login<LoginResponse: Decodable>(with request: LoginRequest) async -> Result<LoginResponse, Error> {
+            let response = await AF.request("http://localhost:3000/login",
+                                                method: .post,
+                                                parameters: request,
+                                                encoder: JSONParameterEncoder.default)
+                                                .validate()
+                                                .serializingDecodable(LoginResponse.self)
+
+        print(response)
+        switch await response.result {
+        case .success(let response):
+            return .success(response)
+        case .failure(let error):
             return .failure(error)
+            
         }
-        
+
     }
 }
