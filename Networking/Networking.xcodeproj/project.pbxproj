@@ -12,6 +12,7 @@
 		3A19F7FC2CECCF120053E93D /* PokemonListResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A19F7FB2CECCF120053E93D /* PokemonListResponse.swift */; };
 		3A19F8042CEF13220053E93D /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 3A19F8032CEF13220053E93D /* Alamofire */; };
 		3A19F8082CEF32660053E93D /* LoginResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A19F8072CEF32660053E93D /* LoginResponse.swift */; };
+		3AAF40CA2CF46773001A0D66 /* PokemonDetailResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AAF40C92CF46773001A0D66 /* PokemonDetailResponse.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -20,6 +21,7 @@
 		3A19F7EC2CEC6A1E0053E93D /* NetworkingManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkingManager.swift; sourceTree = "<group>"; };
 		3A19F7FB2CECCF120053E93D /* PokemonListResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PokemonListResponse.swift; sourceTree = "<group>"; };
 		3A19F8072CEF32660053E93D /* LoginResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginResponse.swift; sourceTree = "<group>"; };
+		3AAF40C92CF46773001A0D66 /* PokemonDetailResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PokemonDetailResponse.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -65,6 +67,7 @@
 			children = (
 				3A19F7FB2CECCF120053E93D /* PokemonListResponse.swift */,
 				3A19F8072CEF32660053E93D /* LoginResponse.swift */,
+				3AAF40C92CF46773001A0D66 /* PokemonDetailResponse.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -157,6 +160,7 @@
 			files = (
 				3A19F7FC2CECCF120053E93D /* PokemonListResponse.swift in Sources */,
 				3A19F7ED2CEC6A1E0053E93D /* NetworkingManager.swift in Sources */,
+				3AAF40CA2CF46773001A0D66 /* PokemonDetailResponse.swift in Sources */,
 				3A19F8082CEF32660053E93D /* LoginResponse.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

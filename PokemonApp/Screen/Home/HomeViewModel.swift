@@ -17,20 +17,7 @@ final class HomeViewModel{
     init(networkingManager: NetworkingManager = NetworkingManager.shared) {
         self.networkingManager = networkingManager
     }
-  /*
-    func getListPokemon() async {
-        let pokemonListResult: Result<PokemonListResponse, Error> = await networkingManager.listPokemon(url: "")
-            // Manejar el resultado (éxito o error)
-            switch pokemonListResult {
-            case .success(let pokemonList):
-                // Extraer la lista de Pokemon del resultado exitoso
-                print(pokemonList)
-            case .failure(let error):
-                // Manejar el error
-                print(error)
-            }
-    }
-    */
+    
     func getListPokemon() async {
         // Validamos que no haya una carga en curso y que haya URL disponible
         guard !isLoading, let url = nextURL else { return }

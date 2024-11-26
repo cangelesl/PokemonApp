@@ -18,6 +18,9 @@
 		3A19F7F82CECCB4E0053E93D /* SplashViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A19F7F72CECCB4E0053E93D /* SplashViewController.swift */; };
 		3A19F7FF2CEDD2890053E93D /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A19F7FE2CEDD2890053E93D /* LoginViewController.swift */; };
 		3A19F8012CEDD29C0053E93D /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A19F8002CEDD29C0053E93D /* LoginViewModel.swift */; };
+		3AAF40CD2CF46B47001A0D66 /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 3AAF40CC2CF46B47001A0D66 /* Kingfisher */; };
+		3AAF40D02CF5A392001A0D66 /* DetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AAF40CF2CF5A392001A0D66 /* DetailViewController.swift */; };
+		3AAF40D22CF5A3AF001A0D66 /* DetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AAF40D12CF5A3AF001A0D66 /* DetailViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -47,6 +50,8 @@
 		3A19F7F72CECCB4E0053E93D /* SplashViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashViewController.swift; sourceTree = "<group>"; };
 		3A19F7FE2CEDD2890053E93D /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 		3A19F8002CEDD29C0053E93D /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
+		3AAF40CF2CF5A392001A0D66 /* DetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailViewController.swift; sourceTree = "<group>"; };
+		3AAF40D12CF5A3AF001A0D66 /* DetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -54,6 +59,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3AAF40CD2CF46B47001A0D66 /* Kingfisher in Frameworks */,
 				3A19F7F12CEC6E8B0053E93D /* Networking.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -94,6 +100,7 @@
 		3A19F7EA2CEB94780053E93D /* Screen */ = {
 			isa = PBXGroup;
 			children = (
+				3AAF40CE2CF5A1BF001A0D66 /* Detail */,
 				3A19F7FD2CEDD26E0053E93D /* Login */,
 				3A19F7F62CECCA900053E93D /* Splash */,
 				3A19F7EE2CEC6DC00053E93D /* Home */,
@@ -143,6 +150,15 @@
 			path = Login;
 			sourceTree = "<group>";
 		};
+		3AAF40CE2CF5A1BF001A0D66 /* Detail */ = {
+			isa = PBXGroup;
+			children = (
+				3AAF40CF2CF5A392001A0D66 /* DetailViewController.swift */,
+				3AAF40D12CF5A3AF001A0D66 /* DetailViewModel.swift */,
+			);
+			path = Detail;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -160,6 +176,9 @@
 			dependencies = (
 			);
 			name = PokemonApp;
+			packageProductDependencies = (
+				3AAF40CC2CF46B47001A0D66 /* Kingfisher */,
+			);
 			productName = PokemonApp;
 			productReference = 3A19F7BF2CEB8A320053E93D /* PokemonApp.app */;
 			productType = "com.apple.product-type.application";
@@ -188,6 +207,9 @@
 				Base,
 			);
 			mainGroup = 3A19F7B62CEB8A320053E93D;
+			packageReferences = (
+				3AAF40CB2CF46B47001A0D66 /* XCRemoteSwiftPackageReference "Kingfisher" */,
+			);
 			productRefGroup = 3A19F7C02CEB8A320053E93D /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -218,9 +240,11 @@
 				3A19F7C72CEB8A320053E93D /* HomeViewController.swift in Sources */,
 				3A19F7C32CEB8A320053E93D /* AppDelegate.swift in Sources */,
 				3A19F7C52CEB8A320053E93D /* SceneDelegate.swift in Sources */,
+				3AAF40D22CF5A3AF001A0D66 /* DetailViewModel.swift in Sources */,
 				3A19F7F52CEC6F580053E93D /* HomeViewModel.swift in Sources */,
 				3A19F7F82CECCB4E0053E93D /* SplashViewController.swift in Sources */,
 				3A19F8012CEDD29C0053E93D /* LoginViewModel.swift in Sources */,
+				3AAF40D02CF5A392001A0D66 /* DetailViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -439,6 +463,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		3AAF40CB2CF46B47001A0D66 /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/onevcat/Kingfisher.git";
+			requirement = {
+				kind = exactVersion;
+				version = 8.1.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		3AAF40CC2CF46B47001A0D66 /* Kingfisher */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3AAF40CB2CF46B47001A0D66 /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			productName = Kingfisher;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 3A19F7B72CEB8A320053E93D /* Project object */;
 }

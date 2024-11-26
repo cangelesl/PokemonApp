@@ -28,8 +28,6 @@ public class NetworkingManager: NetworkingManagerRepresentable {
             .serializingDecodable(PokemonListResponse.self)
         // Await the full response with metrics and a parsed body.
             .response
-        print(response.result)
-        print(response.result)
         switch response.result {
         case .success(let response):
             return .success(response)
@@ -38,6 +36,24 @@ public class NetworkingManager: NetworkingManagerRepresentable {
         }
     }
     
+    public func pokemonDetail<PokemonDetailResponse: Decodable>(name: String) async -> Result<PokemonDetailResponse, Error>{
+        let url = "https://pokeapi.co/api/v2/pokemon/\(name)"
+        let response = await AF.request(url)
+        // Validate response code and Content-Type.
+            .validate()
+        // Automatic Decodable support with background parsing.
+            .serializingDecodable(PokemonDetailResponse.self)
+        // Await the full response with metrics and a parsed body.
+            .response
+        switch response.result {
+        case .success(let response):
+            return .success(response)
+        case .failure(let error):
+            return .failure(error)
+        }
+    }
+    
+    
     public func login<LoginResponse: Decodable>(with request: LoginRequest) async -> Result<LoginResponse, Error> {
             let response = await AF.request("http://localhost:3000/login",
                                                 method: .post,
@@ -45,15 +61,12 @@ public class NetworkingManager: NetworkingManagerRepresentable {
                                                 encoder: JSONParameterEncoder.default)
                                                 .validate()
                                                 .serializingDecodable(LoginResponse.self)
-
         print(response)
         switch await response.result {
         case .success(let response):
             return .success(response)
         case .failure(let error):
             return .failure(error)
-            
         }
-
     }
 }
