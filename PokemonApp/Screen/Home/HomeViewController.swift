@@ -8,81 +8,13 @@
 import UIKit
 import Networking
 import Kingfisher
-/*
-class HomeViewController: UIViewController {
-    private let viewModel: HomeViewModel
-    private let tableView = UITableView()
-    
-    init(viewModel: HomeViewModel) {
-        self.viewModel = viewModel
-        super.init(nibName: nil, bundle: nil)
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        navigationItem.hidesBackButton = true
-        setup()
-        fetchInitialData()
-    }
-    private func setup() {
-        view.backgroundColor = .red
-        title = "Lista de Pokemones"
-        // Definir los atributos del titulo (bold y color)
-        let attributes: [NSAttributedString.Key: Any] = [
-            .font: UIFont.boldSystemFont(ofSize: 20), // Título en negrita
-            .foregroundColor: UIColor.white // Color blanco
-        ]
-        navigationController?.navigationBar.titleTextAttributes = attributes
-        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "PokemonCell")
-        tableView.delegate = self
-        tableView.dataSource = self
-        view.addSubview(tableView)
-        tableView.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            tableView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
-            tableView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor)
-        ])
-    }
-    private func fetchInitialData() {
-        Task {
-            await viewModel.getListPokemon()
-            tableView.reloadData()
-        }
-    }
-}
-
-extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel.pokemons.count
-    }
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "PokemonCell", for: indexPath)
-        let pokemon = viewModel.pokemons[indexPath.row]
-        cell.textLabel?.text = pokemon.name.capitalized
-        return cell
-    }
-    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        if indexPath.row == viewModel.pokemons.count - 1 {
-            Task {
-                await viewModel.getListPokemon()
-                tableView.reloadData()
-            }
-        }
-    }
-    
-}
-*/
+import Combine
 
 class HomeViewController: UIViewController, UISearchBarDelegate {
     private let viewModel: HomeViewModel
     private let tableView = UITableView()
     private let searchBar = UISearchBar()
+    private var cancellables = Set<AnyCancellable>()
     
     init(viewModel: HomeViewModel) {
         self.viewModel = viewModel
@@ -97,13 +29,13 @@ class HomeViewController: UIViewController, UISearchBarDelegate {
         super.viewDidLoad()
         navigationItem.hidesBackButton = true
         setup()
+        bindViewModel()
         fetchInitialData()
     }
 
     private func setup() {
         view.backgroundColor = .white
         title = "Lista de Pokemones"
-        
         // Definir los atributos del título (bold y color)
         let attributes: [NSAttributedString.Key: Any] = [
             .font: UIFont.boldSystemFont(ofSize: 20),
@@ -116,12 +48,10 @@ class HomeViewController: UIViewController, UISearchBarDelegate {
         searchBar.sizeToFit()
         searchBar.showsCancelButton = true
         searchBar.barStyle = .default
-
         // Registrar la celda personalizada
         tableView.register(PokemonCell.self, forCellReuseIdentifier: "PokemonCell")
         tableView.delegate = self
         tableView.dataSource = self
-        
         // Agregar la tabla a la vista
         view.addSubview(searchBar)
         view.addSubview(tableView)
@@ -141,41 +71,70 @@ class HomeViewController: UIViewController, UISearchBarDelegate {
         Task {
             await viewModel.getListPokemon()
             DispatchQueue.main.async {
-            self.tableView.reloadData()
+                self.tableView.reloadData()
             }
         }
     }
+    
+    private func bindViewModel() {
+        viewModel.$filteredPokemon
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] _ in
+                self?.tableView.reloadData()
+            }
+            .store(in: &cancellables)
+    }
+       
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        viewModel.searchText = searchText
+    }
+    
+       func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+           searchBar.text = ""
+           viewModel.searchText = ""
+           searchBar.resignFirstResponder()
+       }
 }
+
 extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModel.pokemons.count
+        return viewModel.filteredPokemon.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "PokemonCell", for: indexPath) as? PokemonCell else {
             return UITableViewCell()
         }
-        let pokemon = viewModel.pokemons[indexPath.row]
+        let pokemon = viewModel.filteredPokemon[indexPath.row]
         cell.pokemonNameLabel.text = pokemon.name.capitalized
         // Construir la URL de la imagen del Pokémon
-        let imageUrl = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/\(indexPath.row + 1).png"
-        print(imageUrl)
-        if let url = URL(string: imageUrl) {
-            cell.pokemonImageView.kf.setImage(with: url, placeholder: UIImage(systemName: "photo"), options: [
-                .transition(.fade(0.2)),
-                .cacheOriginalImage
-            ])
-        }
-        return cell
-    }
-    // se usa la propiedad didselectrowat para capturar la seleccion, invocar la función detail view model y actualizar el dtailview controller
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-         let pokemonName = viewModel.pokemons[indexPath.row].name
-         let detailViewModel = DetailViewModel()
-         detailViewModel.name = pokemonName // Enviar
-         let detailVC = DetailViewController(viewModel: detailViewModel)
-         navigationController?.pushViewController(detailVC, animated: true)
+        if let pokemonID = Int(pokemon.url.split(separator: "/").last ?? "") {
+             let imageUrl = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/\(pokemonID).png"
+             if let url = URL(string: imageUrl) {
+                 cell.pokemonImageView.kf.setImage(with: url, placeholder: UIImage(systemName: "photo"), options: [
+                     .transition(.fade(0.2)),
+                     .cacheOriginalImage
+                 ])
+             }
+         }
+         return cell
      }
+    // se usa la propiedad didselectrowat para capturar la seleccion, invocar la función detail view model y actualizar el dtailview controller
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        // Usar la lista filtrada si hay búsqueda activa, de lo contrario usar la lista completa
+        let pokemonName: String
+        if viewModel.searchText.isEmpty {
+            pokemonName = viewModel.pokemons[indexPath.row].name
+        } else {
+            pokemonName = viewModel.filteredPokemon[indexPath.row].name
+        }
+        print(pokemonName)
+        let detailViewModel = DetailViewModel()
+        detailViewModel.name = pokemonName // Enviar nombre al detalle
+        let detailVC = DetailViewController(viewModel: detailViewModel)
+        navigationController?.pushViewController(detailVC, animated: true)
+    }
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         if indexPath.row == viewModel.pokemons.count - 1 {

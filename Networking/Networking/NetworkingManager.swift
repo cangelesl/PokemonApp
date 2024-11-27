@@ -45,6 +45,7 @@ public class NetworkingManager: NetworkingManagerRepresentable {
             .serializingDecodable(PokemonDetailResponse.self)
         // Await the full response with metrics and a parsed body.
             .response
+        print(url)
         switch response.result {
         case .success(let response):
             return .success(response)

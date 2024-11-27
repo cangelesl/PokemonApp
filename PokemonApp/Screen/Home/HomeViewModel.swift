@@ -7,19 +7,34 @@
 
 import Foundation
 import Networking
+import Combine
 
 final class HomeViewModel{
     let networkingManager: NetworkingManager
     // Variables de lectura del json
     private(set) var pokemons: [Pokemon] = [] // Lista de pokemon del modelo
+    @Published var filteredPokemon: [Pokemon] = []
+    // Combine
+    @Published var searchText: String = "" // Texto del UISearchBar
+    private var cancellables = Set<AnyCancellable>()
     private var nextURL: String? = "https://pokeapi.co/api/v2/pokemon?limit=20"// URL para proximo envio,opcional
     private var isLoading = false // Controla solicitud y evita solicitudes simultaneas
     init(networkingManager: NetworkingManager = NetworkingManager.shared) {
         self.networkingManager = networkingManager
+        //Espera Cambios del searchText
+        $searchText
+            .debounce(for: .milliseconds(300), scheduler: DispatchQueue.main) // Retraso para evitar búsquedas excesivas
+            .removeDuplicates()
+            .sink { [weak self] text in
+                Task {
+                    await self?.searchPokemon(by: text)
+                }
+            }
+            .store(in: &cancellables)
     }
     
     func getListPokemon() async {
-        // Validamos que no haya una carga en curso y que haya URL disponible
+        // Se valida que no haya una carga en curso y que haya URL disponible
         guard !isLoading, let url = nextURL else { return }
         isLoading = true
         do {
@@ -30,6 +45,8 @@ final class HomeViewModel{
             case .success(let response):
                 // llena la lista de pokemons
                 pokemons.append(contentsOf: response.results)
+                filteredPokemon = pokemons // actualiza el array de pokemon
+                print(pokemons)
                 nextURL = response.next // setea nuevo next url
             case .failure(let error):
                 print(error)
@@ -40,4 +57,29 @@ final class HomeViewModel{
 
         isLoading = false
     }
+    
+    func searchPokemon(by name: String) async {
+        guard !name.isEmpty else {
+            filteredPokemon = pokemons // Mostrar todos si el campo está vacío
+            return
+        }
+
+        do {
+            let result: Result<PokemonDetailResponse, Error> = await networkingManager.pokemonDetail(name: name.lowercased())
+            print(result)
+            switch result {
+            case .success(let pokemonDetail):
+                // Convierte PokemonDetailResponse a un modelo compatible con la lista
+                let pokemon = Pokemon(name: pokemonDetail.name, url:"https://pokeapi.co/api/v2/pokemon/\(pokemonDetail.id)")
+                filteredPokemon = [pokemon]	
+            case .failure:
+                filteredPokemon = [] // Vaciar la lista si no se encuentra
+            }
+        } catch {
+            print("Error buscando Pokémon: \(error)")
+            filteredPokemon = [] // Vaciar la lista si ocurre un error
+        }
+    }
+
+    
 }

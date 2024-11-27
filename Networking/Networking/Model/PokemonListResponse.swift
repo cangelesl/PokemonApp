@@ -20,4 +20,9 @@ public struct Pokemon: Decodable {
     public let name: String
     public let url: String
     
+    // Inicializador
+    public init(name: String, url: String) {
+        self.name = name
+        self.url = url
+    }
 }
