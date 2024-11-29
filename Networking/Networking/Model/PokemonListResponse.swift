@@ -19,6 +19,14 @@ public struct Pokemon: Decodable {
     
     public let name: String
     public let url: String
+    // Se agrega el botón favorito y se define como valor inicial false
+    public var isFavorite: Bool = false
+    
+    // Si la clave isFavorite no está en el JSON, asignamos un valor predeterminado
+    enum CodingKeys: String, CodingKey {
+        case name
+        case url
+    }
     
     // Inicializador
     public init(name: String, url: String) {

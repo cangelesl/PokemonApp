@@ -64,10 +64,26 @@ class LoginViewController: UIViewController {
         return button
     }()
     
+    private let loginModel: LoginViewModel
+
+     // Inicializador
+     init(loginModel: LoginViewModel) {
+         self.loginModel = loginModel
+         super.init(nibName: nil, bundle: nil)
+     }
+
+     required init?(coder: NSCoder) {
+         fatalError("init(coder:) has not been implemented")
+     }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         // view.backgroundColor = .white
         setup()
+        // recuperar el último usuario logueado
+        if let username = loginModel.getLastLoggedUser(){
+            usernameTextField.text = username
+        }
         
     }
     func setup(){
@@ -99,24 +115,7 @@ class LoginViewController: UIViewController {
         ])
         loginButton.addTarget(self, action: #selector(buttonTapped), for: .touchUpInside)
     }
-   /*
-    @objc func buttonTapped(sender: UIButton) {
-        navigationController?.pushViewController(HomeViewController(viewModel: HomeViewModel()), animated: true)
-    }
-     */
   
-    private let loginModel: LoginViewModel
-
-     // Inicializador
-     init(loginModel: LoginViewModel) {
-         self.loginModel = loginModel
-         super.init(nibName: nil, bundle: nil)
-     }
-
-     required init?(coder: NSCoder) {
-         fatalError("init(coder:) has not been implemented")
-     }
-    
     @objc func buttonTapped(sender: UIButton) {
         let username = usernameTextField.text ?? ""
         let password = passwordTextField.text ?? ""

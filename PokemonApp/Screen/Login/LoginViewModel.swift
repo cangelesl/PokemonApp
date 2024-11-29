@@ -23,10 +23,18 @@ final class LoginViewModel {
                 if response.result != "Success" {
                     throw LoginError.invalidCredentials
                 }
+                // Guardar usuario en user defaults
+                UserDefaults.standard.set(user, forKey: "lastLoggedUser")
             case .failure(let error):
                 throw error
             }
     }
+    
+    // Define función para recuperar el usuario guardado
+    func getLastLoggedUser() -> String? {
+        return UserDefaults.standard.string(forKey: "lastLoggedUser")
+    }
+
     
 }
 //Definir error por inicio de sesión

@@ -13,8 +13,19 @@ import Combine
 class HomeViewController: UIViewController, UISearchBarDelegate {
     private let viewModel: HomeViewModel
     private let tableView = UITableView()
-    private let searchBar = UISearchBar()
+    // Barra de busqueda
+    private let searchBar : UISearchBar = {
+        // Agregar la barra de búsqueda
+        let searchBar = UISearchBar()
+        searchBar.placeholder = "Buscar Pokémon"
+        searchBar.sizeToFit()
+        searchBar.showsCancelButton = true
+        searchBar.barStyle = .default
+        return searchBar
+    }()
     private var cancellables = Set<AnyCancellable>()
+    
+    
     
     init(viewModel: HomeViewModel) {
         self.viewModel = viewModel
@@ -42,12 +53,8 @@ class HomeViewController: UIViewController, UISearchBarDelegate {
             .foregroundColor: UIColor.black
         ]
         navigationController?.navigationBar.titleTextAttributes = attributes
-        // Agregar la barra de búsqueda
-        searchBar.placeholder = "Buscar Pokémon"
+        // searchBar
         searchBar.delegate = self
-        searchBar.sizeToFit()
-        searchBar.showsCancelButton = true
-        searchBar.barStyle = .default
         // Registrar la celda personalizada
         tableView.register(PokemonCell.self, forCellReuseIdentifier: "PokemonCell")
         tableView.delegate = self
@@ -101,6 +108,7 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
         return viewModel.filteredPokemon.count
     }
 
+    // se usa la propiedad didselectrowat para capturar la seleccion, invocar la función detail view model y actualizar el dtailview controller
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: "PokemonCell", for: indexPath) as? PokemonCell else {
             return UITableViewCell()
@@ -117,9 +125,17 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
                  ])
              }
          }
-         return cell
+        // Configuración de la celda con el modelo de datos
+        cell.configure(with: pokemon)
+        // Configurar el comportamiento del botón de favorito
+        cell.onFavoriteToggle = { [weak self] in // weak self evita la referencia ciclica y que crashee en caso no exista el homeviewmodel
+            guard let self = self else { return }
+            self.viewModel.toggleFavorite(at: indexPath.row, isFiltered: !self.viewModel.searchText.isEmpty)
+            self.tableView.reloadRows(at: [indexPath], with: .none)
+        }
+        return cell
      }
-    // se usa la propiedad didselectrowat para capturar la seleccion, invocar la función detail view model y actualizar el dtailview controller
+    
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         // Usar la lista filtrada si hay búsqueda activa, de lo contrario usar la lista completa
@@ -147,30 +163,62 @@ extension HomeViewController: UITableViewDelegate, UITableViewDataSource {
 }
 // Celda personalizada
 class PokemonCell: UITableViewCell {
-    let pokemonImageView = UIImageView()
-    let pokemonNameLabel = UILabel()
+    let pokemonImageView : UIImageView = {
+        // Se define la configuración de la imagen en la celda
+        let pokemonImageView = UIImageView()
+        pokemonImageView.contentMode = .scaleAspectFit
+        return pokemonImageView
+    }()
+    let pokemonNameLabel : UILabel = {
+        // Se configura el label con el nombre del pokemon
+        let pokemonNameLabel = UILabel()
+        pokemonNameLabel.font = UIFont.boldSystemFont(ofSize: 16)
+        return pokemonNameLabel
+    }()
+    // Definir botón en forma de estrella, para favoritos
+    let favoriteButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setImage(UIImage(systemName: "star"), for: .normal)
+        return button
+    }()
+    // se crea un closure que no devuelva  nada (void)
+    var onFavoriteToggle: (() -> Void)?
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-        // Configurar la vista de la imagen
-        pokemonImageView.contentMode = .scaleAspectFit
+        // Se agregan los componentes a la celda
         contentView.addSubview(pokemonImageView)
-        // Configurar la etiqueta del nombre
-        pokemonNameLabel.font = UIFont.boldSystemFont(ofSize: 16)
         contentView.addSubview(pokemonNameLabel)
-        // Agregar constraints para los elementos
+        contentView.addSubview(favoriteButton)
         pokemonImageView.translatesAutoresizingMaskIntoConstraints = false
         pokemonNameLabel.translatesAutoresizingMaskIntoConstraints = false
+        favoriteButton.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activate([
-            // Imagen: a la izquierda con tamaño fijo
+            // Se define la imagen con tamaño fijo
             pokemonImageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 10),
             pokemonImageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
             pokemonImageView.widthAnchor.constraint(equalToConstant: 50),
             pokemonImageView.heightAnchor.constraint(equalToConstant: 50),
-            // Nombre: a la derecha de la imagen y con margen
+            // Se define el nombre a la derecga
             pokemonNameLabel.leadingAnchor.constraint(equalTo: pokemonImageView.trailingAnchor, constant: 10),
             pokemonNameLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
-            pokemonNameLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
+            pokemonNameLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+            // Se define el botón de favoritos
+            favoriteButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -10),
+            favoriteButton.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+            favoriteButton.widthAnchor.constraint(equalToConstant: 30),
+            favoriteButton.heightAnchor.constraint(equalToConstant: 30)
         ])
+        favoriteButton.addTarget(self, action: #selector(favoriteButtonTapped), for: .touchUpInside)
+    }
+    @objc private func favoriteButtonTapped() {
+        onFavoriteToggle?() // Se llama al closure
+    }
+    
+    func configure(with pokemon: Pokemon) {
+        pokemonNameLabel.text = pokemon.name.capitalized
+        //print(pokemon.isFavorite)
+        let buttonImage = pokemon.isFavorite ? UIImage(systemName: "star.fill") : UIImage(systemName: "star")
+        favoriteButton.setImage(buttonImage, for: .normal)
     }
 
     required init?(coder: NSCoder) {

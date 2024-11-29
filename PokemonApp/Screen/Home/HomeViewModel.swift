@@ -66,7 +66,6 @@ final class HomeViewModel{
 
         do {
             let result: Result<PokemonDetailResponse, Error> = await networkingManager.pokemonDetail(name: name.lowercased())
-            print(result)
             switch result {
             case .success(let pokemonDetail):
                 // Convierte PokemonDetailResponse a un modelo compatible con la lista
@@ -82,4 +81,22 @@ final class HomeViewModel{
     }
 
     
+}
+extension HomeViewModel {
+    func toggleFavorite(at index: Int, isFiltered: Bool) {
+        if isFiltered {
+            // Se cambia el valor de isFavorite en filteredPokemon
+            filteredPokemon[index].isFavorite.toggle()
+            let name = filteredPokemon[index].name
+            if let originalIndex = pokemons.firstIndex(where: { $0.name == name }) {
+                pokemons[originalIndex].isFavorite = filteredPokemon[index].isFavorite
+            }
+        } else {
+            pokemons[index].isFavorite.toggle()
+            // Se actualiza también los pokemones filtrados
+            if let filteredIndex = filteredPokemon.firstIndex(where: { $0.name == pokemons[index].name }) {
+                filteredPokemon[filteredIndex].isFavorite = pokemons[index].isFavorite
+            }
+        }
+    }
 }
